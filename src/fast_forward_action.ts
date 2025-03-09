@@ -1,6 +1,7 @@
 import { GitHubClient } from './github_client_interface'
 import { PrCommentMessages } from './comment_messages_interface';
 
+const IDLE_DESCRIPTION = "Comment '/merge' to merge PR"
 
 export class FastForwardAction{
 
@@ -8,11 +9,11 @@ export class FastForwardAction{
     this.client = client;
   };
 
-  async async_merge_fast_forward(client: GitHubClient, set_status: boolean): Promise<boolean>{  
+  async async_merge_fast_forward(client: GitHubClient, set_status: boolean, status_name: string): Promise<boolean>{
     const pr_number = client.get_current_pull_request_number();
 
     // temporarily set success, then try to merge using ff-only
-    if (set_status) {await client.set_pull_request_status(pr_number, "success");}
+    if (set_status) {await client.set_pull_request_status(pr_number, "success", status_name);}
 
     try {
 
@@ -21,10 +22,12 @@ export class FastForwardAction{
     } catch(error){
 
       console.log(error);
-      if (set_status) {await client.set_pull_request_status(pr_number, "failure");}
+      if (set_status) {await client.set_pull_request_status(pr_number, "failure", status_name);}
       return false;
 
     }
+
+    if (set_status) {await client.set_pull_request_status(pr_number, "pending", status_name, IDLE_DESCRIPTION);}
     return true;
 
   }
@@ -39,9 +42,9 @@ export class FastForwardAction{
       const updated_message = this.insert_branch_names(comment_message.success_message, source_head, target_base, prod_branch, stage_branch);
       await client.comment_on_pull_request_async(pr_number, updated_message);
       return;
-      
+
     } else {
-      
+
       let stageEqualsProd = true;
       try {
         stageEqualsProd = await client.compate_branch_head(prod_branch, stage_branch);
@@ -55,7 +58,7 @@ export class FastForwardAction{
       return;
 
     }
-    
+
   }
 
   insert_branch_names(message: string, source: string, target: string, prod_branch: string, stage_branch: string): string{

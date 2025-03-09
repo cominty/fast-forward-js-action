@@ -9,6 +9,8 @@ inputs:
     description: 'Generic failure message, Will be commented on the pull request, if pull-request fast forward fails.'
   update_status:
     description: 'Optional, if true, the status API is used to set failure or success as a state for the commit, which can be used to gate merging. Default value is false.'
+  status_name:
+    description: 'Optional, if set is used as context for the status API update. Default value is "fast-forward-merge"'
   failure_message_same_stage_and_prod:
     description: 'Optional, failure message, when pull-request fast forward fails, and staging branch equals production branch'
   failure_message_diff_stage_and_prod:

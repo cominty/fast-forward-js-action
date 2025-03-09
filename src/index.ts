@@ -18,6 +18,8 @@ async function run(): Promise<void>{
     failure_message_diff_stage_and_prod: failure_message_diff_stage_and_prod
   }
 
+  const status_name = core.getInput('status_name') || "fast-forward-merge";
+
   const update_status = core.getInput('update_status');
   const set_status = update_status === 'true' ? true : false;
 
@@ -27,7 +29,7 @@ async function run(): Promise<void>{
   const client = new GitHubClientWrapper(github.context , github_token);
   const fastForward = new FastForwardAction(client);
 
-  const ff_status = await fastForward.async_merge_fast_forward(client,set_status);
+  const ff_status = await fastForward.async_merge_fast_forward(client, set_status, status_name);
   await fastForward.async_comment_on_pr(client, comment_messages, ff_status, prod_branch, stage_branch);
 
 }

@@ -74,7 +74,7 @@ export class GitHubClientWrapper implements GitHubClient{
     return getPrResponse.data;
   };
 
-  async set_pull_request_status(pr_number: number, new_status: "error" | "failure" | "pending" | "success"): Promise<void> {
+  async set_pull_request_status(pr_number: number, new_status: "error" | "failure" | "pending" | "success" , status_name: string, description?: string): Promise<void> {
     const pullRequestData =  await this.get_pull_request(pr_number);
 
     const statusResponse = await this.restClient.repos.createStatus({
@@ -82,7 +82,8 @@ export class GitHubClientWrapper implements GitHubClient{
       repo: this.repo,
       sha: pullRequestData.head.sha,
       state: new_status,
-      context: "Fast Forward"
+      context: status_name,
+      description
     });
   }
 
